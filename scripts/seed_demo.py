@@ -13,7 +13,7 @@ import os
 import sys
 
 from app import settings
-from app.seed import seed_demo_users
+from app.seed import DEMO_ACCOUNTS, seed_demo_users, seed_fixed_pages
 
 
 def main() -> int:
@@ -25,7 +25,8 @@ def main() -> int:
         return 1
 
     seed_demo_users({"admin": admin_pw, "editor": editor_pw})
-    print(f"Seeded demo users into {settings.DATABASE_PATH}")
+    seed_fixed_pages(DEMO_ACCOUNTS["admin"]["email"])
+    print(f"Seeded demo users and fixed pages into {settings.DATABASE_PATH}")
     return 0
 
 

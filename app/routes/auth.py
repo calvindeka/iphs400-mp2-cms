@@ -1,7 +1,7 @@
 """Login and logout for the admin console."""
 from __future__ import annotations
 
-from fastapi import APIRouter, Form, HTTPException, Request
+from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 
@@ -38,9 +38,7 @@ def login_submit(request: Request, email: str = Form(...), password: str = Form(
 
 
 @router.post("/logout")
-def logout(request: Request, csrf_token: str = Form(...)):
-    if not csrf.validate(request, csrf_token):
-        raise HTTPException(status_code=400, detail="Invalid or missing CSRF token")
+def logout(_: None = Depends(csrf.require_valid)):
     response = RedirectResponse(url="/login", status_code=303)
     response.delete_cookie(auth.SESSION_COOKIE)
     return response

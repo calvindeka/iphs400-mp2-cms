@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block nav %}<a href="/admin">Dashboard</a> <a href="/admin/pages/new">New page</a>{% endblock %}
+{% block content %}
+  <h1>Pages</h1>
+  <table>
+    <tr><th>Title</th><th>Status</th><th>Slug</th><th>Admin only</th><th></th></tr>
+    {% for p in pages %}
+    <tr>
+      <td>{{ p.title }}</td>
+      <td>{{ p.status }}</td>
+      <td>{{ p.slug }}</td>
+      <td>{{ "yes" if p.admin_only else "" }}</td>
+      <td>
+        {% if not p.admin_only or user.role == 'admin' %}
+        <a href="/admin/pages/{{ p.id }}/edit">Edit</a>
+        <form method="post" action="/admin/pages/{{ p.id }}/delete" style="display:inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button type="submit">Delete</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

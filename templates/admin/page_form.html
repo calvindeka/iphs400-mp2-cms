@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block nav %}<a href="/admin/pages">Pages</a>{% endblock %}
+{% block content %}
+  <h1>{{ "Edit page" if page else "New page" }}</h1>
+  {% if error %}<p role="alert">{{ error }}</p>{% endif %}
+  <form method="post" action="{{ ('/admin/pages/' ~ page.id) if page else '/admin/pages' }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <p><label>Title <input type="text" name="title" value="{{ page.title if page else '' }}" required></label></p>
+    {% if page %}
+    <p><label>Slug
+      <input type="text" name="slug" value="{{ page.slug }}" {% if page.status == 'published' %}readonly{% endif %}>
+    </label>
+    {% if page.status == 'published' %}<small>Locked — this page is published.</small>{% endif %}
+    </p>
+    {% endif %}
+    <p><label>Body (Markdown)<br>
+      <textarea name="body_md" rows="10" cols="60">{{ page.body_md if page else '' }}</textarea>
+    </label></p>
+    {% if user.role == 'admin' %}
+    <p><label><input type="checkbox" name="admin_only" {% if page and page.admin_only %}checked{% endif %}> Admin-only (only admins can edit/delete this page)</label></p>
+    {% endif %}
+    {% if page %}
+    <p><label>Status
+      <select name="status">
+        <option value="draft" {% if page.status == 'draft' %}selected{% endif %}>draft</option>
+        <option value="published" {% if page.status == 'published' %}selected{% endif %}>published</option>
+      </select>
+    </label></p>
+    {% endif %}
+    <p><button type="submit">Save</button></p>
+  </form>
+{% endblock %}

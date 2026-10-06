@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block nav %}<a href="/admin/posts">Posts</a>{% endblock %}
+{% block content %}
+  <h1>{{ "Edit post" if post else "New post" }}</h1>
+  {% if error %}<p role="alert">{{ error }}</p>{% endif %}
+  <form method="post" action="{{ ('/admin/posts/' ~ post.id) if post else '/admin/posts' }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <p><label>Title <input type="text" name="title" value="{{ post.title if post else '' }}" required></label></p>
+    {% if post %}
+    <p><label>Slug
+      <input type="text" name="slug" value="{{ post.slug }}" {% if post.status == 'published' %}readonly{% endif %}>
+    </label>
+    {% if post.status == 'published' %}<small>Locked — this post is published.</small>{% endif %}
+    </p>
+    {% endif %}
+    <p><label>Category
+      <select name="category">
+        <option value="announcement" {% if post and post.category == 'announcement' %}selected{% endif %}>announcement</option>
+        <option value="research" {% if post and post.category == 'research' %}selected{% endif %}>research</option>
+      </select>
+    </label></p>
+    <p><label>Body (Markdown)<br>
+      <textarea name="body_md" rows="10" cols="60">{{ post.body_md if post else '' }}</textarea>
+    </label></p>
+    {% if post %}
+    <p><label>Status
+      <select name="status">
+        <option value="draft" {% if post.status == 'draft' %}selected{% endif %}>draft</option>
+        <option value="published" {% if post.status == 'published' %}selected{% endif %}>published</option>
+      </select>
+    </label></p>
+    {% endif %}
+    <p><button type="submit">Save</button></p>
+  </form>
+{% endblock %}

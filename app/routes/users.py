@@ -52,10 +52,9 @@ def list_users(request: Request, user: auth.User = Depends(auth.require_role("ad
 
 @router.post("/admin/users")
 def create_user(request: Request, email: str = Form(...), password: str = Form(...),
-                 role: str = Form(...), csrf_token: str = Form(...),
-                 user: auth.User = Depends(auth.require_role("admin"))):
-    if not csrf.validate(request, csrf_token):
-        raise HTTPException(status_code=400, detail="Invalid or missing CSRF token")
+                 role: str = Form(...),
+                 user: auth.User = Depends(auth.require_role("admin")),
+                 _csrf: None = Depends(csrf.require_valid)):
     if role not in ROLES:
         return _render(request, user, error=INVALID_ROLE_ERROR, status_code=400)
     with db.connect() as conn:
@@ -72,10 +71,8 @@ def create_user(request: Request, email: str = Form(...), password: str = Form(.
 
 @router.post("/admin/users/{user_id}/role")
 def change_role(request: Request, user_id: int, role: str = Form(...),
-                 csrf_token: str = Form(...),
-                 user: auth.User = Depends(auth.require_role("admin"))):
-    if not csrf.validate(request, csrf_token):
-        raise HTTPException(status_code=400, detail="Invalid or missing CSRF token")
+                 user: auth.User = Depends(auth.require_role("admin")),
+                 _csrf: None = Depends(csrf.require_valid)):
     if role not in ROLES:
         return _render(request, user, error=INVALID_ROLE_ERROR, status_code=400)
     with db.connect() as conn:
@@ -90,10 +87,9 @@ def change_role(request: Request, user_id: int, role: str = Form(...),
 
 
 @router.post("/admin/users/{user_id}/deactivate")
-def deactivate_user(request: Request, user_id: int, csrf_token: str = Form(...),
-                     user: auth.User = Depends(auth.require_role("admin"))):
-    if not csrf.validate(request, csrf_token):
-        raise HTTPException(status_code=400, detail="Invalid or missing CSRF token")
+def deactivate_user(request: Request, user_id: int,
+                     user: auth.User = Depends(auth.require_role("admin")),
+                     _csrf: None = Depends(csrf.require_valid)):
     with db.connect() as conn:
         target = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
         if target is None:

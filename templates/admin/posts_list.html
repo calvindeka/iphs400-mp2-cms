@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block nav %}<a href="/admin">Dashboard</a> <a href="/admin/posts/new">New post</a>{% endblock %}
+{% block content %}
+  <h1>Posts</h1>
+  <table>
+    <tr><th>Title</th><th>Category</th><th>Status</th><th>Slug</th><th></th></tr>
+    {% for p in posts %}
+    <tr>
+      <td>{{ p.title }}</td>
+      <td>{{ p.category }}</td>
+      <td>{{ p.status }}</td>
+      <td>{{ p.slug }}</td>
+      <td>
+        <a href="/admin/posts/{{ p.id }}/edit">Edit</a>
+        <form method="post" action="/admin/posts/{{ p.id }}/delete" style="display:inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button type="submit">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

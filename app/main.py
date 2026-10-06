@@ -14,6 +14,8 @@ from fastapi.templating import Jinja2Templates
 
 from app import auth, csrf, settings
 from app.routes import auth as auth_routes
+from app.routes import pages as pages_routes
+from app.routes import posts as posts_routes
 from app.routes import users as users_routes
 
 templates = Jinja2Templates(directory=str(settings.TEMPLATES))
@@ -23,6 +25,8 @@ def create_app() -> FastAPI:
     app = FastAPI(title="IPHS 400 MP2 CMS")
     app.include_router(auth_routes.router)
     app.include_router(users_routes.router)
+    app.include_router(posts_routes.router)
+    app.include_router(pages_routes.router)
 
     @app.get("/admin")
     def admin_home(request: Request, user: auth.User = Depends(auth.require_login)):

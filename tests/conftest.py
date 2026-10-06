@@ -14,7 +14,7 @@ from fastapi.testclient import TestClient
 
 from app import settings
 from app.main import create_app
-from app.seed import DEMO_ACCOUNTS, seed_demo_users, seed_user
+from app.seed import DEMO_ACCOUNTS, seed_demo_users, seed_fixed_pages, seed_user
 
 # Fixed, meaningless passwords for tests only — never read from the
 # environment and never shared with scripts/seed_demo.py's real demo
@@ -37,6 +37,7 @@ def _isolated_db(tmp_path, monkeypatch):
     monkeypatch.setattr(settings, "DATABASE_PATH", tmp_path / "test.db")
     seed_demo_users(TEST_PASSWORDS)
     seed_user(DEACTIVATED_USER["email"], DEACTIVATED_USER["password"], "editor", active=False)
+    seed_fixed_pages(DEMO_ACCOUNTS["admin"]["email"])
 
 
 @pytest.fixture

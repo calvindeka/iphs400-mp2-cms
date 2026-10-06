@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import secrets
 
-from fastapi import Request, Response
+from fastapi import Form, HTTPException, Request, Response
 
 COOKIE_NAME = "csrf_token"
 
@@ -40,3 +40,10 @@ def apply_cookie(request: Request, response: Response, token: str) -> None:
 def validate(request: Request, submitted_token: str) -> bool:
     cookie_token = request.cookies.get(COOKIE_NAME)
     return bool(cookie_token) and secrets.compare_digest(cookie_token, submitted_token)
+
+
+def require_valid(request: Request, csrf_token: str = Form(...)) -> None:
+    """A route dependency: `Depends(csrf.require_valid)` 400s a forged/missing
+    token, so every state-changing route gets the same one-line guard."""
+    if not validate(request, csrf_token):
+        raise HTTPException(status_code=400, detail="Invalid or missing CSRF token")

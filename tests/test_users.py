@@ -1,8 +1,15 @@
 """T02: admin-only user management, role-gating, and the last-admin guard."""
 from __future__ import annotations
 
+import re
+
 from app import db
 from conftest import DEMO_USERS
+
+
+def _visible_text(html: str) -> str:
+    """Strip tags/attributes so a check doesn't trip on URL paths like /admin/posts."""
+    return re.sub(r"<[^>]+>", " ", html)
 
 
 def _csrf_token(client):
@@ -158,12 +165,12 @@ def test_create_user_rejects_a_duplicate_email(client_as):
 
 def test_editor_role_ui_chrome_avoids_the_word_admin(client_as):
     response = client_as("editor").get("/admin")
-    assert "admin" not in response.text.lower()
+    assert "admin" not in _visible_text(response.text).lower()
 
 
 def test_admin_role_ui_chrome_shows_admin_language(client_as):
     response = client_as("admin").get("/admin")
-    assert "admin" in response.text.lower()
+    assert "admin" in _visible_text(response.text).lower()
 
 
 def _editor_id() -> int:
