@@ -9,11 +9,12 @@ them here. Keep this file small.
 """
 from __future__ import annotations
 
-from fastapi import Depends, FastAPI, Request
+from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 
-from app import auth, csrf, settings
+from app import settings
 from app.routes import auth as auth_routes
+from app.routes import dashboard as dashboard_routes
 from app.routes import pages as pages_routes
 from app.routes import posts as posts_routes
 from app.routes import users as users_routes
@@ -27,16 +28,7 @@ def create_app() -> FastAPI:
     app.include_router(users_routes.router)
     app.include_router(posts_routes.router)
     app.include_router(pages_routes.router)
-
-    @app.get("/admin")
-    def admin_home(request: Request, user: auth.User = Depends(auth.require_login)):
-        token = csrf.get_or_create_token(request)
-        response = templates.TemplateResponse(
-            request, "admin/hello.html",
-            {"title": auth.console_label(user), "user": user, "csrf_token": token},
-        )
-        csrf.apply_cookie(request, response, token)
-        return response
+    app.include_router(dashboard_routes.router)
 
     @app.get("/")
     def public_home(request: Request):

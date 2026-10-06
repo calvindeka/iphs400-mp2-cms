@@ -9,6 +9,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from app import auth, csrf, db, settings
+from app.markdown import render_markdown
 from app.slugs import unique_slug
 
 router = APIRouter()
@@ -120,6 +121,19 @@ def update_post(request: Request, post_id: int, title: str = Form(...),
             return _render_form(request, user, post=post, error=DUPLICATE_SLUG_ERROR,
                                  status_code=400)
     return RedirectResponse(url="/admin/posts", status_code=303)
+
+
+@router.get("/admin/posts/{post_id}/preview")
+def preview_post(request: Request, post_id: int, user: auth.User = Depends(auth.require_login)):
+    with db.connect() as conn:
+        post = conn.execute("SELECT * FROM posts WHERE id = ?", (post_id,)).fetchone()
+    if post is None:
+        raise HTTPException(status_code=404)
+    return templates.TemplateResponse(
+        request, "admin/preview.html",
+        {"title": post["title"], "user": user, "body_html": render_markdown(post["body_md"]),
+         "back_url": f"/admin/posts/{post_id}/edit"},
+    )
 
 
 @router.post("/admin/posts/{post_id}/delete")

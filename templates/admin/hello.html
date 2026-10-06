@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block nav %}
+  <a href="/admin/content">Content</a>
   <a href="/admin/posts">Posts</a>
   <a href="/admin/pages">Pages</a>
   {% if user.role == 'admin' %}<a href="/admin/users">Admin: Users</a>{% endif %}
@@ -7,6 +8,11 @@
 {% block content %}
   <h1>{{ title }}</h1>
   <p>Logged in as {{ user.email }} ({{ user.role }}).</p>
+  <ul>
+    <li>Posts: {{ counts.posts }}</li>
+    <li>Pages: {{ counts.pages }}</li>
+    <li>Users: {{ counts.users }}</li>
+  </ul>
   <form method="post" action="/logout">
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
     <button type="submit">Log out</button>

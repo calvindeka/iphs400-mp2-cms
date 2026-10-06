@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block nav %}<a href="{{ back_url }}">Back to edit</a>{% endblock %}
+{% block content %}
+  <p><small>Preview — not visible to the public until published.</small></p>
+  <h1>{{ title }}</h1>
+  {{ body_html | safe }}
+{% endblock %}

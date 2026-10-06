@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block nav %}<a href="/admin">Dashboard</a>{% endblock %}
+{% block content %}
+  <h1>Content</h1>
+  <form method="get" action="/admin/content">
+    <label>Type
+      <select name="type">
+        <option value="" {% if not filters.type %}selected{% endif %}>all</option>
+        <option value="post" {% if filters.type == 'post' %}selected{% endif %}>post</option>
+        <option value="page" {% if filters.type == 'page' %}selected{% endif %}>page</option>
+      </select>
+    </label>
+    <label>Status
+      <select name="status">
+        <option value="" {% if not filters.status %}selected{% endif %}>all</option>
+        <option value="draft" {% if filters.status == 'draft' %}selected{% endif %}>draft</option>
+        <option value="published" {% if filters.status == 'published' %}selected{% endif %}>published</option>
+      </select>
+    </label>
+    <label>Category
+      <select name="category">
+        <option value="" {% if not filters.category %}selected{% endif %}>all</option>
+        <option value="announcement" {% if filters.category == 'announcement' %}selected{% endif %}>announcement</option>
+        <option value="research" {% if filters.category == 'research' %}selected{% endif %}>research</option>
+      </select>
+    </label>
+    <label>Author <input type="text" name="author" value="{{ filters.author or '' }}" placeholder="email"></label>
+    <button type="submit">Filter</button>
+  </form>
+
+  <table>
+    <tr><th>Type</th><th>Title</th><th>Status</th><th>Category</th><th>Author</th><th></th></tr>
+    {% for item in items %}
+    <tr>
+      <td>{{ item.type }}</td>
+      <td>{{ item.title }}</td>
+      <td>{{ item.status }}</td>
+      <td>{{ item.category or "" }}</td>
+      <td>{{ item.author_email }}</td>
+      <td>
+        <a href="/admin/{{ item.type }}s/{{ item.id }}/edit">Edit</a>
+        <a href="/admin/{{ item.type }}s/{{ item.id }}/preview">Preview</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+{% endblock %}
