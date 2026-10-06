@@ -12,14 +12,31 @@ from __future__ import annotations
 import pytest
 from fastapi.testclient import TestClient
 
+from app import settings
 from app.main import create_app
+from app.seed import DEMO_ACCOUNTS, seed_demo_users, seed_user
 
-# Matches scripts/seed_demo.py. Passwords come from the environment there; in
-# tests they are fixed and meaningless.
+# Fixed, meaningless passwords for tests only — never read from the
+# environment and never shared with scripts/seed_demo.py's real demo
+# passwords (CLAUDE.md: "Read secrets from the environment").
+TEST_PASSWORDS = {"admin": "test-admin-pw", "editor": "test-editor-pw"}
+
 DEMO_USERS = {
-    "admin": {"email": "admin@example.test", "password": "test-admin-pw"},
-    "editor": {"email": "editor@example.test", "password": "test-editor-pw"},
+    role: {"email": account["email"], "password": TEST_PASSWORDS[role]}
+    for role, account in DEMO_ACCOUNTS.items()
 }
+
+# Pre-seeded inactive account, so tests of "deactivated user can't log in"
+# only need an HTTP login attempt — no mid-test DB mutation.
+DEACTIVATED_USER = {"email": "deactivated@example.test", "password": "test-deactivated-pw"}
+
+
+@pytest.fixture(autouse=True)
+def _isolated_db(tmp_path, monkeypatch):
+    """Every test gets its own fresh, pre-seeded database — never the real one."""
+    monkeypatch.setattr(settings, "DATABASE_PATH", tmp_path / "test.db")
+    seed_demo_users(TEST_PASSWORDS)
+    seed_user(DEACTIVATED_USER["email"], DEACTIVATED_USER["password"], "editor", active=False)
 
 
 @pytest.fixture

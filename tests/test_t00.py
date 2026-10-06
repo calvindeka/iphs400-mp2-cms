@@ -5,8 +5,16 @@ door.
 """
 
 
-def test_admin_console_answers(client):
-    response = client.get("/admin")
+def test_admin_console_requires_login(client):
+    """T01 gates /admin behind login (Security Checklist #5): anonymous
+    visitors are redirected, never shown admin content."""
+    response = client.get("/admin", follow_redirects=False)
+    assert response.status_code in (302, 303)
+    assert response.headers["location"].endswith("/login")
+
+
+def test_admin_console_answers_when_logged_in(client_as):
+    response = client_as("editor").get("/admin")
     assert response.status_code == 200
     assert "hello admin" in response.text.lower()
 

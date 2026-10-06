@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
-"""Create demo data so a grader (and you) can use the CMS immediately.
+"""Seed demo users into the local database.
 
     uv run python scripts/seed_demo.py
 
-T00 has nothing to seed. As you build content types, extend this so it creates:
-  - one admin and one editor (passwords read from .env, never hard-coded)
-  - a few posts and pages, at least one draft and one published
-
-The rubric expects this to run clean on a fresh clone with .env.example values
-(item E4), because the database itself is never committed.
+Reads CMS_ADMIN_PASSWORD and CMS_EDITOR_PASSWORD from the environment (copy
+.env.example to .env) — passwords are never hard-coded in source, and the
+database itself is gitignored.
 """
 from __future__ import annotations
 
 import os
 import sys
+
+from app import settings
+from app.seed import seed_demo_users
 
 
 def main() -> int:
@@ -24,9 +24,8 @@ def main() -> int:
               "(copy .env.example).")
         return 1
 
-    # TODO (your tickets): create the users, then the demo content.
-    print("Nothing to seed yet: no content types exist. "
-          "Extend scripts/seed_demo.py as you build T01+.")
+    seed_demo_users({"admin": admin_pw, "editor": editor_pw})
+    print(f"Seeded demo users into {settings.DATABASE_PATH}")
     return 0
 
 
