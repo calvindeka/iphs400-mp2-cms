@@ -138,6 +138,28 @@ def test_editor_cannot_create_an_admin_only_page(client_as):
     assert row["admin_only"] == 0
 
 
+def test_page_create_cannot_land_on_the_reserved_posts_slug(client_as):
+    editor = client_as("editor")
+    _create_page(editor, title="Posts")  # slugify("Posts") == "posts"
+    with db.connect() as conn:
+        row = conn.execute("SELECT slug FROM pages WHERE title = 'Posts'").fetchone()
+    assert row["slug"] != "posts"
+
+
+def test_page_update_rejects_the_reserved_posts_slug(client_as):
+    editor = client_as("editor")
+    page = _create_page(editor)
+    token = _csrf_token(editor)
+    response = editor.post(f"/admin/pages/{page['id']}", data={
+        "title": page["title"], "slug": "posts", "body_md": page["body_md"],
+        "status": "draft", "csrf_token": token,
+    })
+    assert response.status_code == 400
+    with db.connect() as conn:
+        row = conn.execute("SELECT slug FROM pages WHERE id = ?", (page["id"],)).fetchone()
+    assert row["slug"] != "posts"
+
+
 def test_seed_data_includes_the_four_fixed_pages():
     with db.connect() as conn:
         titles = {r["title"] for r in conn.execute("SELECT title FROM pages").fetchall()}

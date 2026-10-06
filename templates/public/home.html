@@ -1,8 +1,14 @@
 {% extends "base.html" %}
+{% block nav %}
+  {% for item in nav %}<a href="{{ item.href }}">{{ item.title }}</a>{% endfor %}
+{% endblock %}
 {% block content %}
-  <h1>{{ title }}</h1>
-  {% if items %}
-    <ul>{% for item in items %}<li><a href="{{ item.href }}">{{ item.title }}</a></li>{% endfor %}</ul>
+  {% if next_meeting_html %}
+    <section>{{ next_meeting_html | safe }}</section>
+  {% endif %}
+  <h2>Latest</h2>
+  {% if posts %}
+    <ul>{% for item in posts %}<li><a href="{{ item.href }}">{{ item.title }}</a></li>{% endfor %}</ul>
   {% else %}
     <p>Nothing published yet.</p>
   {% endif %}

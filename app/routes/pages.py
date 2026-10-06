@@ -20,8 +20,12 @@ router = APIRouter()
 templates = Jinja2Templates(directory=str(settings.TEMPLATES))
 
 STATUSES = {"draft", "published"}
+# "posts" is reserved so a Page can never land on publish's posts/ directory
+# (app/publish.py: Posts live under site/posts/<slug>/).
+RESERVED_SLUGS = frozenset({"posts"})
 SLUG_LOCKED_ERROR = "Can't change the slug of a published page."
 INVALID_STATUS_ERROR = "Status must be draft or published."
+RESERVED_SLUG_ERROR = '"posts" is a reserved slug and can\'t be used for a page.'
 DUPLICATE_SLUG_ERROR = "That slug is already used by another page."
 
 
@@ -70,7 +74,7 @@ def create_page(request: Request, title: str = Form(...), body_md: str = Form(""
                  _csrf: None = Depends(csrf.require_valid)):
     is_admin_only = (admin_only == "on") and user.role == "admin"
     with db.connect() as conn:
-        slug = unique_slug(conn, "pages", title)
+        slug = unique_slug(conn, "pages", title, reserved=RESERVED_SLUGS)
         conn.execute(
             "INSERT INTO pages (title, slug, body_md, status, admin_only, author_id) "
             "VALUES (?, ?, ?, 'draft', ?, ?)",
@@ -102,6 +106,9 @@ def update_page(request: Request, page_id: int, title: str = Form(...),
         _require_page_access(page, user)
         if status not in STATUSES:
             return _render_form(request, user, page=page, error=INVALID_STATUS_ERROR,
+                                 status_code=400)
+        if slug in RESERVED_SLUGS and slug != page["slug"]:
+            return _render_form(request, user, page=page, error=RESERVED_SLUG_ERROR,
                                  status_code=400)
 
         # Same lock timing as Posts (CONTEXT.md "Slug lock"): bites once a

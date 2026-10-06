@@ -17,11 +17,16 @@ def slugify(title: str) -> str:
     return base or "untitled"
 
 
-def unique_slug(conn: sqlite3.Connection, table: str, title: str) -> str:
+def unique_slug(conn: sqlite3.Connection, table: str, title: str,
+                 reserved: frozenset[str] = frozenset()) -> str:
+    """`reserved` names are treated as already taken — e.g. Pages reserve
+    "posts" so a Page can never collide with publish's posts/ directory."""
     base = slugify(title)
     slug = base
     n = 2
-    while conn.execute(f"SELECT 1 FROM {table} WHERE slug = ?", (slug,)).fetchone():
+    while slug in reserved or conn.execute(
+        f"SELECT 1 FROM {table} WHERE slug = ?", (slug,)
+    ).fetchone():
         slug = f"{base}-{n}"
         n += 1
     return slug
