@@ -1,7 +1,9 @@
 {% extends "base.html" %}
+{% block nav %}
+  {% if user.role == 'admin' %}<a href="/admin/users">Admin: Users</a>{% endif %}
+{% endblock %}
 {% block content %}
-  <h1>T00: hello admin</h1>
-  <p>The stack works. Now build ticket T01.</p>
+  <h1>{{ title }}</h1>
   <p>Logged in as {{ user.email }} ({{ user.role }}).</p>
   <form method="post" action="/logout">
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">

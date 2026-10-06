@@ -16,7 +16,7 @@ def test_admin_console_requires_login(client):
 def test_admin_console_answers_when_logged_in(client_as):
     response = client_as("editor").get("/admin")
     assert response.status_code == 200
-    assert "hello admin" in response.text.lower()
+    assert "logged in as" in response.text.lower()
 
 
 def test_public_home_answers(client):

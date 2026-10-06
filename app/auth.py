@@ -1,4 +1,4 @@
-"""Password hashing, session cookies, and the require_login dependency.
+"""Password hashing, session cookies, and the require_login/require_role dependencies.
 
 Session cookie holds a signed user id (itsdangerous) — never anything secret
 in the clear, and the signature means a client can't forge or tamper with it.
@@ -10,7 +10,7 @@ from dataclasses import dataclass
 
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
-from fastapi import HTTPException, Request
+from fastapi import Depends, HTTPException, Request
 from itsdangerous import BadSignature, URLSafeTimedSerializer
 
 from app import db, settings
@@ -76,3 +76,29 @@ def require_login(request: Request) -> User:
     if user is None:
         raise HTTPException(status_code=303, headers={"Location": "/login"})
     return user
+
+
+def require_role(role: str):
+    """A dependency factory: Depends(require_role("admin")) 403s anyone else."""
+
+    def _dependency(user: User = Depends(require_login)) -> User:
+        if user.role != role:
+            raise HTTPException(status_code=403, detail=f"{role.title()} access required")
+        return user
+
+    return _dependency
+
+
+def console_label(user: User) -> str:
+    """UI chrome label: 'Admin' only for the admin role, 'Dashboard' otherwise.
+
+    Priya (editor) avoids anything labeled "admin" — see CONTEXT.md.
+    """
+    return "Admin" if user.role == "admin" else "Dashboard"
+
+
+def count_active_admins(conn) -> int:
+    row = conn.execute(
+        "SELECT COUNT(*) AS n FROM users WHERE role = 'admin' AND active = 1"
+    ).fetchone()
+    return row["n"]

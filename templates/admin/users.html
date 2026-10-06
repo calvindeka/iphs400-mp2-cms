@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block nav %}<a href="/admin">Dashboard</a>{% endblock %}
+{% block content %}
+  <h1>Users</h1>
+  {% if error %}<p role="alert">{{ error }}</p>{% endif %}
+
+  <table>
+    <tr><th>Email</th><th>Role</th><th>Active</th><th></th></tr>
+    {% for u in users %}
+    <tr>
+      <td>{{ u.email }}</td>
+      <td>
+        <form method="post" action="/admin/users/{{ u.id }}/role">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <select name="role" onchange="this.form.submit()">
+            <option value="admin" {% if u.role == 'admin' %}selected{% endif %}>admin</option>
+            <option value="editor" {% if u.role == 'editor' %}selected{% endif %}>editor</option>
+          </select>
+        </form>
+      </td>
+      <td>{{ "active" if u.active else "deactivated" }}</td>
+      <td>
+        {% if u.active %}
+        <form method="post" action="/admin/users/{{ u.id }}/deactivate">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button type="submit">Deactivate</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <h2>Add a user</h2>
+  <form method="post" action="/admin/users">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <p><label>Email <input type="email" name="email" required></label></p>
+    <p><label>Initial password <input type="text" name="password" required></label></p>
+    <p><label>Role
+      <select name="role">
+        <option value="editor">editor</option>
+        <option value="admin">admin</option>
+      </select>
+    </label></p>
+    <p><button type="submit">Create user</button></p>
+  </form>
+{% endblock %}
