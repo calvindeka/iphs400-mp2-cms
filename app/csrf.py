@@ -6,12 +6,9 @@ can't read the victim's cookie to put a matching value in its own forged
 form, so a mismatch means the request didn't originate from a page we
 rendered. Stateless — no server-side session needed.
 
-Login itself is the one state-changing form that's exempt: it establishes
-the session rather than acting on an existing one, there's nothing yet to
-forge an action against, and `tests/conftest.py`'s given `client_as` fixture
-logs in with a bare POST, confirming the template's own design doesn't
-expect a token there. Logout and every later ticket's forms (posts, pages,
-users) use this module.
+Login is covered too, guarding against a login-CSRF where a forged POST
+logs the victim into an attacker-controlled account. Every mutating route
+(login, logout, posts, pages, users) uses this module.
 """
 from __future__ import annotations
 

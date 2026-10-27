@@ -49,6 +49,7 @@ def test_every_state_changing_post_rejects_a_request_with_no_csrf_token(client_a
     post_id = _create_post(admin)
 
     routes = [
+        ("/login", {"email": "nobody@example.test", "password": "x"}),
         ("/admin/users", {"email": "nobody@example.test", "password": "x", "role": "editor"}),
         (f"/admin/users/{editor_id}/role", {"role": "admin"}),
         (f"/admin/users/{editor_id}/deactivate", {}),

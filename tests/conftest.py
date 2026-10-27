@@ -52,11 +52,14 @@ def client_as():
     def _login(role: str) -> TestClient:
         user = DEMO_USERS[role]
         c = TestClient(create_app())
-        response = c.post("/login", data={"email": user["email"],
-                                          "password": user["password"]},
-                          follow_redirects=False)
-        if response.status_code == 404:
+        get_response = c.get("/login")
+        if get_response.status_code == 404:
             pytest.skip("No /login route yet — build the login ticket first.")
+        csrf_token = c.cookies.get("csrf_token")
+        response = c.post("/login", data={"email": user["email"],
+                                          "password": user["password"],
+                                          "csrf_token": csrf_token},
+                          follow_redirects=False)
         assert response.status_code in (200, 302, 303), (
             f"Login as {role} failed with {response.status_code}")
         return c

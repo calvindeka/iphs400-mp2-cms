@@ -15,18 +15,25 @@ GENERIC_LOGIN_ERROR = "Incorrect email or password."
 
 @router.get("/login")
 def login_form(request: Request):
-    return templates.TemplateResponse(request, "admin/login.html", {"title": "Log in", "error": None})
+    token = csrf.get_or_create_token(request)
+    response = templates.TemplateResponse(
+        request, "admin/login.html", {"title": "Log in", "error": None, "csrf_token": token},
+    )
+    csrf.apply_cookie(request, response, token)
+    return response
 
 
 @router.post("/login")
-def login_submit(request: Request, email: str = Form(...), password: str = Form(...)):
+def login_submit(request: Request, email: str = Form(...), password: str = Form(...),
+                  _csrf: None = Depends(csrf.require_valid)):
     with db.connect() as conn:
         row = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
 
     if row is None or not row["active"] or not auth.verify_password(password, row["password_hash"]):
         return templates.TemplateResponse(
             request, "admin/login.html",
-            {"title": "Log in", "error": GENERIC_LOGIN_ERROR}, status_code=400,
+            {"title": "Log in", "error": GENERIC_LOGIN_ERROR, "csrf_token": csrf.get_or_create_token(request)},
+            status_code=400,
         )
 
     response = RedirectResponse(url="/admin", status_code=303)

@@ -2,6 +2,8 @@
 drafts never leak, Markdown is sanitized."""
 from __future__ import annotations
 
+import time
+
 from app import db
 from app.publish import render_site
 
@@ -67,6 +69,16 @@ def test_next_meeting_stays_featured_after_being_renamed(client_as, tmp_path):
 
     html = (render_site(tmp_path / "site") / "index.html").read_text()
     assert "When: Tuesdays." in html
+
+
+def test_post_archive_lists_posts_newest_published_first(client_as, tmp_path):
+    editor = _login(client_as)
+    _create_post(editor, "Older Post", status="published")
+    time.sleep(1.1)  # SQLite datetime('now') has 1-second resolution
+    _create_post(editor, "Newer Post", status="published")
+
+    html = (render_site(tmp_path / "site") / "index.html").read_text()
+    assert html.index("Newer Post") < html.index("Older Post")
 
 
 def test_every_published_page_appears_in_nav(client_as, tmp_path):
