@@ -35,9 +35,10 @@ shared.
 
 **Admin console**:
 The private, local-only app at `/admin`. UI chrome avoids the word "Admin" for
-users in the editor role (shown as "Dashboard"/"Content" instead) since Priya
-specifically avoids anything labeled "admin"; sections truly restricted to the
-admin role keep "Admin" language.
+users in the editor role (shown as "Dashboard"/"Content" instead), matching
+client-brief.md's "no patience for anything that looks like 'software'" —
+editors shouldn't need to parse admin jargon to do their job; sections truly
+restricted to the admin role keep "Admin" language.
 _Avoid_: Backend, dashboard (as the umbrella term — "Admin console" is the
 umbrella; "Dashboard" is only the editor-facing relabel of it).
 
@@ -61,9 +62,6 @@ weekly announcements; doubles as a content-list filter dimension (capability
 
 ## Out of scope (decided, not silently dropped)
 
-- **48-hour event-address visibility**: not automated. Editorial workflow —
-  Karen/Tom leave the address blank until 48h before the event. No scheduled-
-  visibility code, no test for it.
 - **Concurrent-edit locking** (seen in WordPress Playground field notes):
   skipped. Last-write-wins. Team is three people; collision risk is low.
 - **Full-text search**: skipped. The stated problem ("Facebook isn't

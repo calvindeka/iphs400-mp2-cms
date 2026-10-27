@@ -92,7 +92,8 @@ def require_role(role: str):
 def console_label(user: User) -> str:
     """UI chrome label: 'Admin' only for the admin role, 'Dashboard' otherwise.
 
-    Priya (editor) avoids anything labeled "admin" — see CONTEXT.md.
+    Editors shouldn't need to parse admin jargon to do their job — see
+    CONTEXT.md "Admin console".
     """
     return "Admin" if user.role == "admin" else "Dashboard"
 

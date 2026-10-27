@@ -92,6 +92,16 @@ currently an editorial workflow note rather than enforced code, which was
 a deliberate scope cut under deadline pressure, not a forgotten
 requirement.
 
+**Addendum, 2026-10-27:** the 48-hour event-address rule described above was
+one of three invented client-brief specifics the 2026-10-22 evaluation
+flagged under A2. Rather than keep the invented backstory, it (along with a
+second invented detail about distrust of reformatting tools) was removed
+from `notes/client-brief.md` and `CONTEXT.md` outright; the "no full-text
+search" decision took its place in the A1 addendum reasoning
+(`docs/transcripts/iphs400_mp2-cms_grill-addendum_calvin-deka_20261027.md`).
+The remaining added detail (the third volunteer's weekly-check-in/shadowing
+working style) is now drawn from real experience rather than invented.
+
 The budget data has a real gap in it worth naming rather than hiding:
 `.claude/state/phase` wasn't labeled consistently for a large stretch of
 this session (visible in `notes/usage-ledger.csv` as 16 rows under
@@ -107,3 +117,10 @@ throughout rather than resetting between tickets. The real lesson for next
 time isn't about the model's cost; it's a process one: write the phase
 label *first*, before the first tool call of a ticket, not after noticing
 it's missing.
+
+**Addendum, 2026-10-27:** the 2026-10-22 evaluation (B7) found a worse gap
+than mislabeling — `notes/usage-ledger.csv` had never been committed past
+2026-09-29, so it didn't cover the Oct 6 build session this report's numbers
+above are drawn from, and those numbers weren't independently verifiable.
+The ledger rows existed locally (the status-line hook had been writing
+them the whole time) but were never checked in. They're committed now.

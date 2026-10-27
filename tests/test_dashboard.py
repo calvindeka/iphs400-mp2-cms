@@ -25,7 +25,7 @@ def test_dashboard_shows_counts(client_as):
     assert response.status_code == 200
     assert "Posts: 1" in response.text
     assert "Pages: 4" in response.text  # the four fixed seed pages
-    assert "Users: 2" in response.text  # admin + editor; deactivated excluded
+    assert "Active users: 2" in response.text  # admin + editor; deactivated excluded
 
 
 def test_content_list_shows_posts_and_pages_together(client_as):
@@ -73,7 +73,7 @@ def test_content_list_explicit_type_page_wins_over_a_stray_category(client_as):
 
 def test_dashboard_users_count_excludes_deactivated(client_as):
     response = client_as("admin").get("/admin")
-    assert "Users: 2" in response.text  # admin + editor only, not the deactivated seed account
+    assert "Active users: 2" in response.text  # admin + editor only, not the deactivated seed account
 
 
 def test_content_list_filters_by_author_and_shows_every_authors_items(client_as):
