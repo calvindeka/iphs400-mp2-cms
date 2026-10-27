@@ -21,12 +21,9 @@ admin can edit it.
 
 ---
 
-**Decision: the 48-hour event-address rule is an editorial workflow note
-(Karen/Tom leave the address blank until 48 hours out), not automated code.**
+**Decision: no full-text search — a plain reverse-chronological archive of
+published Posts instead.**
 
-My answer: I would keep this as an editorial workflow note because there are
-only three volunteers, and they already understand why the rule matters.
-Leaving the address blank until 48 hours before the event keeps the system
-simple. The tradeoff is that someone could forget or publish it early. If
-that happens repeatedly, or the group grows, automated enforcement would
-become more worthwhile.
+My answer: I chose a reverse-chronological archive because it keeps recent
+posts easy to find and the site simple to maintain, though full-text search
+could become useful as the archive grows.
