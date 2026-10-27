@@ -1,6 +1,5 @@
-{% extends "base.html" %}
-{% block nav %}<a href="/admin">Dashboard</a>{% endblock %}
-{% block content %}
+{% extends "admin/_base.html" %}
+{% block admin_content %}
   <h1>Users</h1>
   {% if error %}<p role="alert">{{ error }}</p>{% endif %}
 

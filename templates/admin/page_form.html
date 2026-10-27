@@ -1,6 +1,5 @@
-{% extends "base.html" %}
-{% block nav %}<a href="/admin/pages">Pages</a>{% endblock %}
-{% block content %}
+{% extends "admin/_base.html" %}
+{% block admin_content %}
   <h1>{{ "Edit page" if page else "New page" }}</h1>
   {% if error %}<p role="alert">{{ error }}</p>{% endif %}
   <form method="post" action="{{ ('/admin/pages/' ~ page.id) if page else '/admin/pages' }}">
@@ -14,7 +13,7 @@
     </p>
     {% endif %}
     <p><label>Body (Markdown)<br>
-      <textarea name="body_md" rows="10" cols="60">{{ page.body_md if page else '' }}</textarea>
+      <textarea name="body_md" rows="10" style="width: 100%; box-sizing: border-box">{{ page.body_md if page else '' }}</textarea>
     </label></p>
     {% if user.role == 'admin' %}
     <p><label><input type="checkbox" name="admin_only" {% if page and page.admin_only %}checked{% endif %}> Admin-only (only admins can edit/delete this page)</label></p>

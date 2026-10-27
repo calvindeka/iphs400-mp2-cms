@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block nav %}
+  <a href="/admin">Dashboard</a>
+  <a href="/admin/content">Content</a>
+  <a href="/admin/posts">Posts</a>
+  <a href="/admin/pages">Pages</a>
+  {% if user.role == 'admin' %}<a href="/admin/users">Users</a>{% endif %}
+  <form method="post" action="/logout" style="display:inline">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button type="submit">Log out</button>
+  </form>
+{% endblock %}
+{% block content %}
+  {% set flash = request.query_params.get('flash') %}
+  {% if flash %}<p role="status">{{ flash }}</p>{% endif %}
+  {% block admin_content %}{% endblock %}
+{% endblock %}

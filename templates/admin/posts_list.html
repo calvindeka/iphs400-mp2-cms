@@ -1,7 +1,7 @@
-{% extends "base.html" %}
-{% block nav %}<a href="/admin">Dashboard</a> <a href="/admin/posts/new">New post</a>{% endblock %}
-{% block content %}
+{% extends "admin/_base.html" %}
+{% block admin_content %}
   <h1>Posts</h1>
+  <p><a href="/admin/posts/new">New post</a></p>
   <table>
     <tr><th>Title</th><th>Category</th><th>Status</th><th>Slug</th><th></th></tr>
     {% for p in posts %}

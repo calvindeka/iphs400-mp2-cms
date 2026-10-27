@@ -5,10 +5,10 @@ from __future__ import annotations
 import sqlite3
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
-from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from app import auth, csrf, db, settings
+from app.flash import redirect_with_message
 from app.markdown import render_markdown
 from app.slugs import unique_slug
 
@@ -71,7 +71,7 @@ def create_post(request: Request, title: str = Form(...), body_md: str = Form(""
             (title, slug, body_md, category, user.id),
         )
         conn.commit()
-    return RedirectResponse(url="/admin/posts", status_code=303)
+    return redirect_with_message("/admin/posts", "Post created.")
 
 
 @router.get("/admin/posts/{post_id}/edit")
@@ -107,7 +107,8 @@ def update_post(request: Request, post_id: int, title: str = Form(...),
             return _render_form(request, user, post=post, error=SLUG_LOCKED_ERROR, status_code=400)
 
         published_at = post["published_at"]
-        if post["status"] == "draft" and status == "published":
+        just_published = post["status"] == "draft" and status == "published"
+        if just_published:
             published_at = conn.execute("SELECT datetime('now') AS now").fetchone()["now"]
 
         try:
@@ -120,7 +121,8 @@ def update_post(request: Request, post_id: int, title: str = Form(...),
         except sqlite3.IntegrityError:
             return _render_form(request, user, post=post, error=DUPLICATE_SLUG_ERROR,
                                  status_code=400)
-    return RedirectResponse(url="/admin/posts", status_code=303)
+    message = "Post published." if just_published else "Post saved."
+    return redirect_with_message("/admin/posts", message)
 
 
 @router.get("/admin/posts/{post_id}/preview")
@@ -129,11 +131,14 @@ def preview_post(request: Request, post_id: int, user: auth.User = Depends(auth.
         post = conn.execute("SELECT * FROM posts WHERE id = ?", (post_id,)).fetchone()
     if post is None:
         raise HTTPException(status_code=404)
-    return templates.TemplateResponse(
+    token = csrf.get_or_create_token(request)
+    response = templates.TemplateResponse(
         request, "admin/preview.html",
-        {"title": post["title"], "user": user, "body_html": render_markdown(post["body_md"]),
-         "back_url": f"/admin/posts/{post_id}/edit"},
+        {"title": post["title"], "user": user, "csrf_token": token,
+         "body_html": render_markdown(post["body_md"]), "back_url": f"/admin/posts/{post_id}/edit"},
     )
+    csrf.apply_cookie(request, response, token)
+    return response
 
 
 @router.post("/admin/posts/{post_id}/delete")
@@ -144,4 +149,4 @@ def delete_post(request: Request, post_id: int, user: auth.User = Depends(auth.r
             raise HTTPException(status_code=404)
         conn.execute("DELETE FROM posts WHERE id = ?", (post_id,))
         conn.commit()
-    return RedirectResponse(url="/admin/posts", status_code=303)
+    return redirect_with_message("/admin/posts", "Post deleted.")

@@ -9,10 +9,10 @@ from __future__ import annotations
 import sqlite3
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
-from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from app import auth, csrf, db, settings
+from app.flash import redirect_with_message
 
 router = APIRouter()
 templates = Jinja2Templates(directory=str(settings.TEMPLATES))
@@ -66,7 +66,7 @@ def create_user(request: Request, email: str = Form(...), password: str = Form(.
             conn.commit()
         except sqlite3.IntegrityError:
             return _render(request, user, error=DUPLICATE_EMAIL_ERROR, status_code=400)
-    return RedirectResponse(url="/admin/users", status_code=303)
+    return redirect_with_message("/admin/users", "User created.")
 
 
 @router.post("/admin/users/{user_id}/role")
@@ -83,7 +83,7 @@ def change_role(request: Request, user_id: int, role: str = Form(...),
             return _render(request, user, error=LAST_ADMIN_ERROR, status_code=400)
         conn.execute("UPDATE users SET role = ? WHERE id = ?", (role, user_id))
         conn.commit()
-    return RedirectResponse(url="/admin/users", status_code=303)
+    return redirect_with_message("/admin/users", "Role updated.")
 
 
 @router.post("/admin/users/{user_id}/deactivate")
@@ -98,4 +98,4 @@ def deactivate_user(request: Request, user_id: int,
             return _render(request, user, error=LAST_ADMIN_ERROR, status_code=400)
         conn.execute("UPDATE users SET active = 0 WHERE id = ?", (user_id,))
         conn.commit()
-    return RedirectResponse(url="/admin/users", status_code=303)
+    return redirect_with_message("/admin/users", "User deactivated.")

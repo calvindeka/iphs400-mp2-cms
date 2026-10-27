@@ -9,10 +9,10 @@ from __future__ import annotations
 import sqlite3
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
-from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from app import auth, csrf, db, settings
+from app.flash import redirect_with_message
 from app.markdown import render_markdown
 from app.slugs import unique_slug
 
@@ -81,7 +81,7 @@ def create_page(request: Request, title: str = Form(...), body_md: str = Form(""
             (title, slug, body_md, int(is_admin_only), user.id),
         )
         conn.commit()
-    return RedirectResponse(url="/admin/pages", status_code=303)
+    return redirect_with_message("/admin/pages", "Page created.")
 
 
 @router.get("/admin/pages/{page_id}/edit")
@@ -119,7 +119,8 @@ def update_page(request: Request, page_id: int, title: str = Form(...),
 
         is_admin_only = (admin_only == "on") if user.role == "admin" else bool(page["admin_only"])
         published_at = page["published_at"]
-        if page["status"] == "draft" and status == "published":
+        just_published = page["status"] == "draft" and status == "published"
+        if just_published:
             published_at = conn.execute("SELECT datetime('now') AS now").fetchone()["now"]
 
         try:
@@ -132,7 +133,8 @@ def update_page(request: Request, page_id: int, title: str = Form(...),
         except sqlite3.IntegrityError:
             return _render_form(request, user, page=page, error=DUPLICATE_SLUG_ERROR,
                                  status_code=400)
-    return RedirectResponse(url="/admin/pages", status_code=303)
+    message = "Page published." if just_published else "Page saved."
+    return redirect_with_message("/admin/pages", message)
 
 
 @router.get("/admin/pages/{page_id}/preview")
@@ -142,11 +144,14 @@ def preview_page(request: Request, page_id: int, user: auth.User = Depends(auth.
     if page is None:
         raise HTTPException(status_code=404)
     _require_page_access(page, user)
-    return templates.TemplateResponse(
+    token = csrf.get_or_create_token(request)
+    response = templates.TemplateResponse(
         request, "admin/preview.html",
-        {"title": page["title"], "user": user, "body_html": render_markdown(page["body_md"]),
-         "back_url": f"/admin/pages/{page_id}/edit"},
+        {"title": page["title"], "user": user, "csrf_token": token,
+         "body_html": render_markdown(page["body_md"]), "back_url": f"/admin/pages/{page_id}/edit"},
     )
+    csrf.apply_cookie(request, response, token)
+    return response
 
 
 @router.post("/admin/pages/{page_id}/delete")
@@ -159,4 +164,4 @@ def delete_page(request: Request, page_id: int, user: auth.User = Depends(auth.r
         _require_page_access(page, user)
         conn.execute("DELETE FROM pages WHERE id = ?", (page_id,))
         conn.commit()
-    return RedirectResponse(url="/admin/pages", status_code=303)
+    return redirect_with_message("/admin/pages", "Page deleted.")

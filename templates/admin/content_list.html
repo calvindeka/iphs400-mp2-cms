@@ -1,6 +1,5 @@
-{% extends "base.html" %}
-{% block nav %}<a href="/admin">Dashboard</a>{% endblock %}
-{% block content %}
+{% extends "admin/_base.html" %}
+{% block admin_content %}
   <h1>Content</h1>
   <form method="get" action="/admin/content">
     <label>Type
@@ -28,20 +27,22 @@
     <button type="submit">Filter</button>
   </form>
 
-  <table>
-    <tr><th>Type</th><th>Title</th><th>Status</th><th>Category</th><th>Author</th><th></th></tr>
-    {% for item in items %}
-    <tr>
-      <td>{{ item.type }}</td>
-      <td>{{ item.title }}</td>
-      <td>{{ item.status }}</td>
-      <td>{{ item.category or "" }}</td>
-      <td>{{ item.author_email }}</td>
-      <td>
-        <a href="/admin/{{ item.type }}s/{{ item.id }}/edit">Edit</a>
-        <a href="/admin/{{ item.type }}s/{{ item.id }}/preview">Preview</a>
-      </td>
-    </tr>
-    {% endfor %}
-  </table>
+  <div style="overflow-x: auto">
+    <table>
+      <tr><th>Type</th><th>Title</th><th>Status</th><th>Category</th><th>Author</th><th></th></tr>
+      {% for item in items %}
+      <tr>
+        <td>{{ item.type }}</td>
+        <td>{{ item.title }}</td>
+        <td>{{ item.status }}</td>
+        <td>{{ item.category or "" }}</td>
+        <td>{{ item.author_email }}</td>
+        <td>
+          <a href="/admin/{{ item.type }}s/{{ item.id }}/edit">Edit</a>
+          <a href="/admin/{{ item.type }}s/{{ item.id }}/preview">Preview</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
 {% endblock %}
