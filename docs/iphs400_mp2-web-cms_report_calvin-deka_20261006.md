@@ -34,6 +34,14 @@ recommendations I accepted, not positions I independently reasoned to. That
 costs real points under Factor A, and I'd rather say so than claim
 otherwise.
 
+**Addendum, 2026-10-27:** the 2026-10-22 evaluation scored this honestly —
+A1 = 0/5, no independent reasoning on record. Rather than rewrite the
+original transcript, I revisited two of these decisions after the fact and
+wrote the actual reasoning down: see
+`docs/transcripts/iphs400_mp2-cms_grill-addendum_calvin-deka_20261027.md`.
+It's reasoning added in review, not reasoning that happened during the
+original grill — I'm not claiming otherwise.
+
 ## 2. Where did the AI drift or invent something, and what caught it?
 
 Building T01 (login), I replaced the template's original
